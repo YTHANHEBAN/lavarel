@@ -63,6 +63,8 @@
                                 <a class="nav-link" href="/categories">Quản Lý Danh Mục</a>
                                 <a class="nav-link" href="/users">Quản Lý Người Dùng</a>
                                 <a class="nav-link" href="/coupons">Quản Lý Mã Giảm Giá</a>
+                                <a class="nav-link" href="/admin/orders">Quản Lý Đơn Hàng </a>
+                                <a class="nav-link" href="/admin/revenue">Thống Kê Doanh Thu</a>
                             </nav>
                         </div>
                         <a class="nav-link collapsed" href="#" data-bs-toggle="collapse" data-bs-target="#collapsePages" aria-expanded="false" aria-controls="collapsePages">
@@ -145,6 +147,7 @@
     <script src="{{ asset('assets/demo/chart-bar-demo.js') }}"></script>
     <script src="https://cdn.jsdelivr.net/npm/simple-datatables@7.1.2/dist/umd/simple-datatables.min.js" crossorigin="anonymous"></script>
     <script src="{{ asset('js/datatables-simple-demo.js') }}"></script>
+    @yield('scripts')
 </body>
 
 </html>

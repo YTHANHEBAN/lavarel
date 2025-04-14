@@ -15,6 +15,7 @@ class Cart extends Model
         'quantity',
         'price',
         'total_price',
+        'input_price',
     ];
 
     public function product()

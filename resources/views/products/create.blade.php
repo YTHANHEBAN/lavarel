@@ -31,9 +31,15 @@
             <small class="text-danger">{{ $message }}</small>
             @enderror
         </div>
-
         <div class="form-group">
-            <label for="price">Giá</label>
+            <label for="input_price">Giá Nhập</label>
+            <input type="number" name="input_price" id="input_price" class="form-control @error('input_price') is-invalid @enderror" value="{{ old('input_price') }}">
+            @error('price')
+            <small class="text-danger">{{ $message }}</small>
+            @enderror
+        </div>
+        <div class="form-group">
+            <label for="price">Giá Bán </label>
             <input type="number" name="price" id="price" class="form-control @error('price') is-invalid @enderror" value="{{ old('price') }}">
             @error('price')
             <small class="text-danger">{{ $message }}</small>

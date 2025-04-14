@@ -136,6 +136,7 @@ public function store(Request $request)
       'name' => 'required|max:255',
       'image' => 'required|image|mimes:jpeg,png,jpg,gif,svg,webp|max:2048',
       'description' => 'nullable',
+      'input_price' => 'required|numeric|min:0',
       'price' => 'required|numeric|min:0',
       'quantity' => 'required|numeric|min:0',
       'category_id' => 'required|numeric|min:0|exists:categories,id',
@@ -178,7 +179,9 @@ public function store(Request $request)
 
     public function product_detail(Product $product)
     {
-        return view('user_products.products_detail', compact('product'));
+        $query = Product::query();
+        $products_categories = $query->orderBy('id', 'desc')->get();
+        return view('user_products.products_detail', compact('product','products_categories'));
     }
 
 
@@ -230,6 +233,7 @@ public function store(Request $request)
             'name' => 'required|max:255',
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg,webp|max:2048',
             'description' => 'nullable',
+            'input_price' => 'required|numeric|min:0',
             'price' => 'required|numeric|min:0',
             'quantity' => 'required|numeric|min:0',
             'category_id' => 'required|numeric|min:0|exists:categories,id',

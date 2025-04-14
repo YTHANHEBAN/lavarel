@@ -12,6 +12,10 @@ use App\Http\Controllers\ChangePasswordController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\CouponController;
 use App\Http\Controllers\AddressController;
+use App\Http\Controllers\OrderController;
+use App\Http\Controllers\PaymentController;
+use App\Http\Controllers\ProductReviewController;
+
 
 
 
@@ -157,6 +161,15 @@ Route::middleware(['auth', 'is_admin'])->group(function () {
     Route::get('/coupons/edit/{coupon}', [CouponController::class, 'edit'])->name('coupons.edit');
     Route::put('/coupons/update/{coupon}', [CouponController::class, 'update'])->name('coupons.update');
     Route::delete('/coupons/delete/{coupon}', [CouponController::class, 'delete']);
+
+
+    // routes/web.php
+    Route::get('admin/orders', [OrderController::class, 'list'])->name('admin.orders.index');
+    Route::get('admin/orders/{id}', [OrderController::class, 'show_admin'])->name('show_admin.orders.show');
+    Route::post('/orders/update/{id}', [OrderController::class, 'updateStatus'])->name('orders.updateStatus');
+    Route::post('/products/{product}/review', [ProductReviewController::class, 'store'])->name('products.review.store')->middleware('auth');
+
+    Route::get('/admin/revenue', [OrderController::class, 'revenue'])->name('admin.revenue');
 });
 
 
@@ -211,14 +224,38 @@ Route::middleware(['require_login'])->group(function () {
     Route::delete('/carts/clear', [CartController::class, 'clear'])->name('cart.clear');
 
     Route::get('/checkout', [CartController::class, 'checkout'])->name('cart.checkout');
+    Route::post('/checkout/process', [CartController::class, 'processCheckout'])->name('checkout.process');
     Route::get('/change-password', [ChangePasswordController::class, 'showForm'])->name('password.change');
     Route::post('/change-password', [ChangePasswordController::class, 'update'])->name('password.update');
 
 
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::post('/profile', [ProfileController::class, 'update'])->name('profile.update');
+
+    Route::get('/orders', [OrderController::class, 'index'])->name('orders.index');
+    Route::get('/orders/{id}', [OrderController::class, 'show'])->name('orders.show');
+
+
+    Route::post('/vnpay_payment', [PaymentController::class, 'vnpay_payment'])->name('vnpay.payment');
+    Route::get('vnpay/return', [CartController::class, 'vnpayReturn'])->name('vnpay.return');
+    Route::get('/checkout/momo-return', [CartController::class, 'momoReturn'])->name('momo.return');
+    Route::get('zalopay/return', [CartController::class, 'zalopayReturn'])->name('zalopay.return');
+
+
+    // Route::post('/calculate-shipping-fee', [AddressController::class, 'calculateShippingFee']);
+    Route::get('/shipping/fee', [AddressController::class, 'calculateShippingFee2'])->name('calculate.shipping');
+
+    Route::get('/addresses', [AddressController::class, 'index'])->name('addresses.index');
+    Route::get('/addresses/create', [AddressController::class, 'create'])->name('addresses.create');
+    Route::post('/addresses', [AddressController::class, 'store'])->name('addresses.store');
+    Route::delete('/addresses/{id}', [AddressController::class, 'destroy'])->name('addresses.destroy');
+    Route::get('/addresses/{id}/edit', [AddressController::class, 'edit'])->name('addresses.edit');
+    Route::put('/addresses/{id}', [AddressController::class, 'update'])->name('addresses.update');
 });
 
+Route::get('/thanks', function () {
+    return view('carts.thanks');
+})->name('carts.thanks');
 Route::get('/address/province', [AddressController::class, 'getProvice'])->name('address.province');
 Route::get('/address/district/{id}', [AddressController::class, 'getDistrict'])->name('address.district');
 Route::get('/address/ward/{id}', [AddressController::class, 'getWard'])->name('address.ward');

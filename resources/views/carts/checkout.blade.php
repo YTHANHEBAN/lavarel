@@ -3,273 +3,270 @@
 @section('content')
 <!-- Start Cart  -->
 <br><br><br><br>
-<div class="cart-box-main">
-    <div class="container">
-        <div class="row new-account-login">
-            <div class="col-sm-6 col-lg-6 mb-3">
-                <div class="title-left">
-                    <h3>Account Login</h3>
-                </div>
-                <h5><a data-toggle="collapse" href="#formLogin" role="button" aria-expanded="false">Click here to
-                        Login</a></h5>
-                <form class="mt-3 collapse review-form-box" id="formLogin">
-                    <div class="form-row">
-                        <div class="form-group col-md-6">
-                            <label for="InputEmail" class="mb-0">Email Address</label>
-                            <input type="email" class="form-control" id="InputEmail" placeholder="Enter Email">
-                        </div>
-                        <div class="form-group col-md-6">
-                            <label for="InputPassword" class="mb-0">Password</label>
-                            <input type="password" class="form-control" id="InputPassword" placeholder="Password">
-                        </div>
-                    </div>
-                    <button type="submit" class="btn hvr-hover">Login</button>
-                </form>
-            </div>
-            <div class="col-sm-6 col-lg-6 mb-3">
-                <div class="title-left">
-                    <h3>Create New Account</h3>
-                </div>
-                <h5><a data-toggle="collapse" href="#formRegister" role="button" aria-expanded="false">Click here to
-                        Register</a></h5>
-                <form class="mt-3 collapse review-form-box" id="formRegister">
-                    <div class="form-row">
-                        <div class="form-group col-md-6">
-                            <label for="InputName" class="mb-0">First Name</label>
-                            <input type="text" class="form-control" id="InputName" placeholder="First Name">
-                        </div>
-                        <div class="form-group col-md-6">
-                            <label for="InputLastname" class="mb-0">Last Name</label>
-                            <input type="text" class="form-control" id="InputLastname" placeholder="Last Name">
-                        </div>
-                        <div class="form-group col-md-6">
-                            <label for="InputEmail1" class="mb-0">Email Address</label>
-                            <input type="email" class="form-control" id="InputEmail1" placeholder="Enter Email">
-                        </div>
-                        <div class="form-group col-md-6">
-                            <label for="InputPassword1" class="mb-0">Password</label>
-                            <input type="password" class="form-control" id="InputPassword1" placeholder="Password">
-                        </div>
-                    </div>
-                    <button type="submit" class="btn hvr-hover">Register</button>
-                </form>
-            </div>
-        </div>
-        <div class="row">
-            <div class="col-sm-6 col-lg-6 mb-3">
-                <div class="checkout-address">
-                    <div class="title-left">
-                        <h3>Billing address</h3>
-                    </div>
-                    <form class="needs-validation" novalidate>
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <label for="firstName">First name *</label>
-                                <input type="text" class="form-control" id="firstName" placeholder="" value="" required>
-                                <div class="invalid-feedback"> Valid first name is required. </div>
+<style>
+    body {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        background-color: #f8f9fa;
+        color: #333;
+    }
+
+    h3,
+    h5 {
+        color: #2c3e50;
+    }
+
+    .card {
+        border-radius: 12px;
+        border: none;
+        background-color: #fff;
+        transition: box-shadow 0.3s ease;
+    }
+
+    .card:hover {
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+    }
+
+    .card-body {
+        padding: 2rem;
+    }
+
+    .form-control,
+    .form-select {
+        border-radius: 8px;
+        border: 1px solid #ced4da;
+        padding: 0.6rem 0.75rem;
+    }
+
+    .form-control:focus,
+    .form-select:focus {
+        border-color: #5dade2;
+        box-shadow: 0 0 0 0.2rem rgba(93, 173, 226, 0.25);
+    }
+
+    .form-label {
+        font-weight: 500;
+        margin-bottom: 0.25rem;
+    }
+
+    .btn {
+        border-radius: 8px;
+        font-weight: 600;
+        padding: 0.6rem 1rem;
+    }
+
+    .btn-primary {
+        background-color: #3498db;
+        border-color: #3498db;
+    }
+
+    .btn-primary:hover {
+        background-color: #2980b9;
+        border-color: #2980b9;
+    }
+
+    .btn-success {
+        background-color: #2ecc71;
+        border-color: #2ecc71;
+    }
+
+    .btn-success:hover {
+        background-color: #27ae60;
+        border-color: #27ae60;
+    }
+
+    .btn-danger {
+        background-color: #e74c3c;
+        border-color: #e74c3c;
+    }
+
+    .btn-danger:hover {
+        background-color: #c0392b;
+        border-color: #c0392b;
+    }
+
+    .form-check-input:checked {
+        background-color: #3498db;
+        border-color: #3498db;
+    }
+
+    .form-check-label {
+        font-weight: 500;
+    }
+
+    .form-check .text-muted {
+        font-size: 0.85rem;
+        margin-left: 1.5rem;
+        color: #7f8c8d !important;
+    }
+
+    .d-flex.justify-content-between span,
+    .d-flex.justify-content-between strong {
+        font-weight: 500;
+    }
+
+    .d-flex.justify-content-between h5 {
+        margin: 0;
+    }
+
+    a {
+        color: #2980b9;
+        text-decoration: none;
+    }
+
+    a:hover {
+        text-decoration: underline;
+    }
+</style>
+
+<form action="{{ route('checkout.process') }}" method="POST">
+    @csrf
+    <div class="container py-5">
+        <div class="row g-4">
+            <!-- Địa chỉ thanh toán -->
+            <div class="col-lg-6">
+                <div class="card shadow-sm border-0 mb-4">
+                    <div class="card-body">
+                        <h3 class="mb-3">Địa chỉ thanh toán</h3>
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label">Tên *</label>
+                                <input type="text" name="first_name" class="form-control" required>
                             </div>
-                            <div class="col-md-6 mb-3">
-                                <label for="lastName">Last name *</label>
-                                <input type="text" class="form-control" id="lastName" placeholder="" value="" required>
-                                <div class="invalid-feedback"> Valid last name is required. </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Họ *</label>
+                                <input type="text" name="last_name" class="form-control" required>
                             </div>
-                        </div>
-                        <div class="mb-3">
-                            <label for="username">Username *</label>
-                            <div class="input-group">
-                                <input type="text" class="form-control" id="username" placeholder="" required>
-                                <div class="invalid-feedback" style="width: 100%;"> Your username is required.
-                                </div>
+                            <div class="col-12">
+                                <label class="form-label">Tên người dùng *</label>
+                                <input type="text" name="username" class="form-control" required>
                             </div>
-                        </div>
-                        <div class="mb-3">
-                            <label for="email">Email Address *</label>
-                            <input type="email" class="form-control" id="email" placeholder="">
-                            <div class="invalid-feedback"> Please enter a valid email address for shipping updates.
+                            <div class="col-12">
+                                <label class="form-label">Địa chỉ email *</label>
+                                <input type="email" name="email" class="form-control">
                             </div>
-                        </div>
-                        <div class="mb-3">
-                            <label for="address">Address *</label>
-                            <input type="text" class="form-control" id="address" placeholder="" required>
-                            <div class="invalid-feedback"> Please enter your shipping address. </div>
-                        </div>
-                        <div class="mb-3">
-                            <label for="address2">Address 2 *</label>
-                            <input type="text" class="form-control" id="address2" placeholder="">
-                        </div>
-                        <div class="row">
-                            <div class="col-md-5 mb-3">
-                                <label for="country">Country *</label>
-                                <select id="province" class="form-select">
+                            <div class="col-12 mb-3">
+                                <label for="address" class="form-label">Địa chỉ chi tiết *</label>
+                                <select class="form-select w-100" name="address" id="address" required style="min-width: 100%; padding: 12px;">
+                                    <option value="">-- Chọn địa chỉ --</option>
+                                    @foreach ($addresses as $address)
+                                    <option value="{{ $address->id }}" id="location">{{ $address->province }}/{{ $address->district }}/{{ $address->ward }}
+                                    </option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Tỉnh/Thành</label>
+                                <select class="form-select" name="province" id="province">
                                     <option value="">Chọn tỉnh/thành</option>
                                 </select>
-                                <div class="invalid-feedback"> Please select a valid country. </div>
                             </div>
-                            <div class="col-md-4 mb-3">
-                                <label for="state">State *</label>
-                                <select id="district" class="form-select" disabled>
+                            <div class="col-md-6">
+                                <label class="form-label">Quận/Huyện</label>
+                                <select class="form-select" name="district" id="district" disabled>
                                     <option value="">Chọn quận/huyện</option>
                                 </select>
-                                <div class="invalid-feedback"> Please provide a valid state. </div>
                             </div>
-
-                            <div class="col-md-4 mb-3">
-                                <label for="ward">Ward *</label>
-                                <select id="ward" class="form-select" disabled>
+                            <div class="col-md-6">
+                                <label class="form-label">Phường/Xã</label>
+                                <select class="form-select" name="ward" id="ward" disabled>
                                     <option value="">Chọn phường/xã</option>
                                 </select>
-                                <div class="invalid-feedback"> Please provide a valid ward. </div>
                             </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Mã bưu điện</label>
+                                <input type="text" name="postal_code" class="form-control" required>
+                            </div>
+                        </div>
 
-
-                            <div class="col-md-3 mb-3">
-                                <label for="zip">Zip *</label>
-                                <input type="text" class="form-control" id="zip" placeholder="" required>
-                                <div class="invalid-feedback"> Zip code required. </div>
-                            </div>
+                        <hr>
+                        <h5>Phương thức thanh toán</h5>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="paymentmethod" id="cod" value="COD" checked>
+                            <label class="form-check-label" for="cod">Thanh toán khi nhận hàng</label>
                         </div>
-                        <hr class="mb-4">
-                        <div class="custom-control custom-checkbox">
-                            <input type="checkbox" class="custom-control-input" id="same-address">
-                            <label class="custom-control-label" for="same-address">Shipping address is the same as
-                                my billing address</label>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="paymentmethod" id="vnpay" value="VNPAY">
+                            <label class="form-check-label" for="vnpay">VNPAY</label>
                         </div>
-                        <div class="custom-control custom-checkbox">
-                            <input type="checkbox" class="custom-control-input" id="save-info">
-                            <label class="custom-control-label" for="save-info">Save this information for next
-                                time</label>
+                        <div class="form-check mb-3">
+                            <input class="form-check-input" type="radio" name="paymentmethod" id="paypal" value="PAYPAL">
+                            <label class="form-check-label" for="momo">MOMO</label>
                         </div>
-                        <hr class="mb-4">
-                        <div class="title"> <span>Payment</span> </div>
-                        <div class="d-block my-3">
-                            <div class="custom-control custom-radio">
-                                <input id="credit" name="paymentMethod" type="radio" class="custom-control-input"
-                                    checked required>
-                                <label class="custom-control-label" for="credit">COD</label>
-                            </div>
-                            <div class="custom-control custom-radio">
-                                <input id="debit" name="paymentMethod" type="radio" class="custom-control-input"
-                                    required>
-                                <label class="custom-control-label" for="debit">VNPAY</label>
-                            </div>
-                            <div class="custom-control custom-radio">
-                                <input id="paypal" name="paymentMethod" type="radio" class="custom-control-input"
-                                    required>
-                                <label class="custom-control-label" for="paypal">PAYPAL</label>
-                            </div>
-                        </div>
-                        <hr class="mb-1">
-                    </form>
+                    </div>
                 </div>
             </div>
-            <div class="col-sm-6 col-lg-6 mb-3">
-                <div class="row">
-                    <div class="col-md-12 col-lg-12">
-                        <div class="shipping-method-box">
-                            <div class="title-left">
-                                <h3>Shipping Method</h3>
-                            </div>
-                            <div class="mb-4">
-                                <div class="custom-control custom-radio">
-                                    <input id="shippingOption1" name="shipping-option" class="custom-control-input"
-                                        checked="checked" type="radio">
-                                    <label class="custom-control-label" for="shippingOption1">Standard
-                                        Delivery</label> <span class="float-right font-weight-bold">FREE</span>
-                                </div>
-                                <div class="ml-4 mb-2 small">(3-7 business days)</div>
-                                <div class="custom-control custom-radio">
-                                    <input id="shippingOption2" name="shipping-option" class="custom-control-input"
-                                        type="radio">
-                                    <label class="custom-control-label" for="shippingOption2">Express
-                                        Delivery</label> <span class="float-right font-weight-bold">$10.00</span>
-                                </div>
-                                <div class="ml-4 mb-2 small">(2-4 business days)</div>
-                                <div class="custom-control custom-radio">
-                                    <input id="shippingOption3" name="shipping-option" class="custom-control-input"
-                                        type="radio">
-                                    <label class="custom-control-label" for="shippingOption3">Next Business
-                                        day</label> <span class="float-right font-weight-bold">$20.00</span>
-                                </div>
-                            </div>
+
+            <!-- Phương thức giao hàng và đơn hàng -->
+            <div class="col-lg-6">
+                <div class="card shadow-sm border-0 mb-4">
+                    <div class="card-body">
+                        <h3 class="mb-3">Phương thức giao hàng</h3>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="shipping" id="shipping1" value="standard" checked>
+                            <label class="form-check-label d-flex justify-content-between" for="shipping1">
+                                Giao hàng tiêu chuẩn <span>MIỄN PHÍ</span>
+                            </label>
+                            <div class="small text-muted ps-4">(3–7 ngày làm việc)</div>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="shipping" id="shipping2" value="fast">
+                            <label class="form-check-label d-flex justify-content-between" for="shipping2">
+                                Giao hàng nhanh <span>$10.00</span>
+                            </label>
+                            <div class="small text-muted ps-4">(2–4 ngày làm việc)</div>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="shipping" id="shipping3" value="express">
+                            <label class="form-check-label d-flex justify-content-between" for="shipping3">
+                                Giao hàng ngày mai <span>$20.00</span>
+                            </label>
                         </div>
                     </div>
-                    <div class="col-md-12 col-lg-12">
-                        <div class="odr-box">
-                            <div class="title-left">
-                                <h3>Shopping cart</h3>
-                            </div>
-                            <div class="rounded p-2 bg-light">
-                                @foreach ($carts as $cart)
-                                <div class="media mb-2 border-bottom">
-                                    <div class="media-body"> <a href="#"> {{ $cart->name }}</a>
-                                        <div class="small text-muted">Price: ${{ $cart->price }} <span
-                                                class="mx-2">|</span> Qty:
-                                            1 <span class="mx-2">|</span> Subtotal: ${{ $cart->qty }}</div>
-                                    </div>
+                </div>
+
+                <div class="card shadow-sm border-0">
+                    <div class="card-body">
+                        <h3 class="mb-3">Tóm tắt đơn hàng</h3>
+                        <div class="mb-2">
+                            @foreach ($carts as $cart)
+                            <div class="d-flex justify-content-between border-bottom py-2">
+                                <div>
+                                    <strong>{{ $cart->name }}</strong><br>
+                                    <small class="text-muted">Giá: ${{ $cart->price }} | SL: {{ $cart->qty }} | Tạm tính: ${{ $cart->price * $cart->qty }}</small>
                                 </div>
-                                @endforeach
-                                {{-- <div class="media mb-2 border-bottom">
-                                        <div class="media-body"> <a href="detail.html"> Lorem ipsum dolor sit amet</a>
-                                            <div class="small text-muted">Price: $60.00 <span class="mx-2">|</span> Qty:
-                                                1 <span class="mx-2">|</span> Subtotal: $60.00</div>
-                                        </div>
-                                    </div>
-                                    <div class="media mb-2">
-                                        <div class="media-body"> <a href="detail.html"> Lorem ipsum dolor sit amet</a>
-                                            <div class="small text-muted">Price: $40.00 <span class="mx-2">|</span> Qty:
-                                                1 <span class="mx-2">|</span> Subtotal: $40.00</div>
-                                        </div>
-                                    </div> --}}
                             </div>
+                            @endforeach
                         </div>
-                    </div>
-                    <div class="col-md-12 col-lg-12">
-                        <div class="order-box">
-                            <div class="title-left">
-                                <h3>Your order</h3>
-                            </div>
-                            <div class="d-flex">
-                                <div class="font-weight-bold">Product</div>
-                                <div class="ml-auto font-weight-bold">Total</div>
-                            </div>
-                            <hr class="my-1">
-                            <div class="d-flex">
-                                <h4>Sub Total</h4>
-                                <div class="ml-auto font-weight-bold"> $ 440 </div>
-                            </div>
-                            <div class="d-flex">
-                                <h4>Discount</h4>
-                                <div class="ml-auto font-weight-bold"> $ 40 </div>
-                            </div>
-                            <hr class="my-1">
-                            <div class="d-flex">
-                                <h4>Coupon Discount</h4>
-                                <div class="ml-auto font-weight-bold"> $ 10 </div>
-                            </div>
-                            <div class="d-flex">
-                                <h4>Tax</h4>
-                                <div class="ml-auto font-weight-bold"> $ 2 </div>
-                            </div>
-                            <div class="d-flex">
-                                <h4>Shipping Cost</h4>
-                                <div class="ml-auto font-weight-bold"> Free </div>
-                            </div>
-                            <hr>
-                            <div class="d-flex gr-total">
-                                <h5>Grand Total</h5>
-                                <div class="ml-auto h5"> $ 388 </div>
-                            </div>
-                            <hr>
+
+                        <div class="d-flex justify-content-between mt-3">
+                            <span>Tổng phụ</span><strong>$440</strong>
                         </div>
+                        <div class="d-flex justify-content-between">
+                            <span>Giảm giá</span><strong>$40</strong>
+                        </div>
+                        <div class="d-flex justify-content-between">
+                            <span>Giảm mã khuyến mãi</span><strong>$10</strong>
+                        </div>
+                        <div class="d-flex justify-content-between">
+                            <span>Thuế</span><strong>$2</strong>
+                        </div>
+                        <div class="d-flex justify-content-between">
+                            <span>Phí giao hàng</span><strong>Miễn phí</strong>
+                        </div>
+                        <hr>
+                        <div class="d-flex justify-content-between">
+                            <h5>Tổng cộng</h5>
+                            <h5>$388</h5>
+                        </div>
+
+                        <button type="submit" class="btn btn-danger w-100 mt-3">Đặt hàng</button>
                     </div>
-                    <div class="col-12 d-flex shopping-box"> <a href="checkout.html" class="ml-auto btn hvr-hover">Place
-                            Order</a> </div>
                 </div>
             </div>
         </div>
-
     </div>
-</div>
+</form>
+
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         const provinceSelect = document.getElementById('province');
@@ -341,6 +338,41 @@
                     .catch(error => console.error('Lỗi load phường:', error));
             }
         });
+    });
+
+    document.addEventListener('DOMContentLoaded', function() {
+        const locationTd = document.getElementById('location');
+        const locationValue = locationTd.textContent.trim();
+
+        const [provinceId, districtId, wardCode] = locationValue.split('/').map(i => i.trim());
+
+        let provinceName = '',
+            districtName = '',
+            wardName = '';
+
+        fetch('/address/provinces')
+            .then(res => res.json())
+            .then(data => {
+                const province = data.data.find(p => p.ProvinceID == provinceId);
+                provinceName = province ? province.ProvinceName : 'Không rõ tỉnh';
+                return fetch(`/address/districts/${provinceId}`);
+            })
+            .then(res => res.json())
+            .then(data => {
+                const district = data.data.find(d => d.DistrictID == districtId);
+                districtName = district ? district.DistrictName : 'Không rõ quận';
+                return fetch(`/address/wards/${districtId}`);
+            })
+            .then(res => res.json())
+            .then(data => {
+                const ward = data.data.find(w => w.WardCode == wardCode);
+                wardName = ward ? ward.WardName : 'Không rõ phường';
+                locationTd.textContent = `${provinceName} / ${districtName} / ${wardName}`;
+            })
+            .catch(error => {
+                console.error('Lỗi khi load địa chỉ:', error);
+                locationTd.textContent = 'Không thể hiển thị địa chỉ';
+            });
     });
 </script>
 

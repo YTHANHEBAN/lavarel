@@ -15,6 +15,7 @@ class Product extends Model
         'image',
         'quantity',
         'category_id',
+        'input_price',
     ];
 
     public function category(): BelongsTo
@@ -25,5 +26,14 @@ class Product extends Model
     public function images()
     {
         return $this->hasMany(Images::class);
+    }
+    public function reviews()
+    {
+        return $this->hasMany(ProductReview::class);
+    }
+
+    public function averageRating()
+    {
+        return $this->reviews()->avg('rating');
     }
 }

@@ -75,7 +75,7 @@
             <span class="dropdown-btn" onclick="toggleDropdown()"><i class="fa-solid fa-user"></i> Tài Khoản Của Tôi</span>
             <div id="dropdownContent" class="dropdown-content">
                 <a href="/profile" class="text-danger">Hồ Sơ</a>
-                <a href="#">Địa Chỉ</a>
+                <a href="/addresses">Địa Chỉ</a>
                 <a href="/change-password">Đổi Mật Khẩu</a>
             </div>
         </div>

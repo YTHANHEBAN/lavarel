@@ -24,9 +24,16 @@
                 <small class="text-danger">{{ $message }}</small>
             @enderror
         </div>
-
         <div class="mb-3">
-            <label class="form-label">Giá</label>
+            <label class="form-label">Giá Nhập</label>
+            <input type="number" name="input_price" class="form-control @error('input_price') is-invalid @enderror"
+                   value="{{ old('input_price', $product->input_price) }}" required>
+            @error('price')
+                <small class="text-danger">{{ $message }}</small>
+            @enderror
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Giá Bán</label>
             <input type="number" name="price" class="form-control @error('price') is-invalid @enderror"
                    value="{{ old('price', $product->price) }}" required>
             @error('price')
