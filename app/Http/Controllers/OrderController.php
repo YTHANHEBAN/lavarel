@@ -9,19 +9,41 @@ use App\Models\Cart;
 use App\Models\Order;
 use App\Models\Product;
 use App\Models\OrderItem;
+use App\Models\ProductReview;
 
 class OrderController extends Controller
 {
-    public function index()
+    // public function index()
+    // {
+    //     $orders = Order::where('user_id', Auth::id())->orderBy('created_at', 'desc')->get();
+    //     return view('user_orders.history', compact('orders'));
+    // }
+
+    public function index(Request $request)
     {
-        $orders = Order::where('user_id', Auth::id())->orderBy('created_at', 'desc')->get();
+        $query = Order::where('user_id', Auth::id());
+
+        // Nếu có truyền trạng thái thì lọc theo trạng thái
+        if ($request->filled('status')) {
+            $query->where('status', $request->status);
+        }
+
+        $orders = $query->orderBy('created_at', 'desc')->get();
+
         return view('user_orders.history', compact('orders'));
     }
 
+
+    public function show_admin($id)
+    {
+        $order = Order::with('items.product')->where('id', $id)->where('user_id', Auth::id())->firstOrFail();
+        return view('orders.show', compact('order'));
+    }
     public function show($id)
     {
         $order = Order::with('items.product')->where('id', $id)->where('user_id', Auth::id())->firstOrFail();
-        return view('user_orders.show', compact('order'));
+        $products_reviews = ProductReview::query()->where('user_id', Auth::id())->get();
+        return view('user_orders.show', compact('order','products_reviews'));
     }
 
     public function updateStatus(Request $request, $id)
@@ -31,6 +53,18 @@ class OrderController extends Controller
         ]);
 
         $order = Order::findOrFail($id);
+
+        // Nếu trạng thái thay đổi thành "Đã Hủy" và trước đó không phải là "Đã Hủy"
+        if ($request->status === 'Đã Hủy' && $order->status !== 'Đã Hủy') {
+            foreach ($order->items as $item) {
+                $product = $item->product;
+                if ($product) {
+                    $product->quantity += $item->quantity; // hoàn lại số lượng vào kho
+                    $product->save();
+                }
+            }
+        }
+
         $order->status = $request->status;
         $order->save();
 
@@ -38,58 +72,108 @@ class OrderController extends Controller
     }
 
 
+    //     public function list()
+    // {
+    //     $query = Order::with('user')->orderBy('created_at', 'desc');
+
+    //     // Nếu có yêu cầu lọc theo trạng thái
+    //     if (request()->has('status') && request()->status !== '') {
+    //         $query->where('status', request()->status);
+    //     }
+
+    //     $orders = $query->get();
+
+    //     // Truyền thêm status hiện tại để dùng lại trong view nếu muốn
+    //     return view('orders.list', [
+    //         'orders' => $orders,
+    //         'currentStatus' => request()->status
+    //     ]);
+    // }
+
     public function list()
     {
-        // Lấy tất cả đơn hàng (ví dụ cho admin)
-        $orders = Order::with('user')->orderBy('created_at', 'desc')->get();
-        return view('orders.list', compact('orders'));
+        $query = Order::orderBy('id', 'desc');
+
+        // Nếu request có truyền 'status' và không rỗng, lọc theo status
+        if (request()->has('status') && request()->status !== '') {
+            $query->where('status', request()->status);
+        }
+
+        $orders = $query->get();
+
+        return view('orders.list', [
+            'orders' => $orders,
+            'currentStatus' => request()->status
+        ]);
     }
+
+
+
 
     public function revenue()
-    {
-        // Tổng doanh thu (chỉ tính đơn đã hoàn thành)
-        $totalRevenue = Order::where('status', 'Đã Hoàn Thành')
-            ->sum('total_price');
-        $totalRevenueQuantity = OrderItem::whereHas('order', function ($query) {
-            $query->where('status', 'Đã Hoàn Thành');
-        })->sum('quantity');
-        $totalRevenueInput = OrderItem::whereHas('order', function ($query) {
-            $query->where('status', 'Đã Hoàn Thành');
-        })->sum('input_price');
+{
+    // Tổng doanh thu (chỉ tính đơn đã hoàn thành)
+    $totalRevenue = Order::where('status', 'Đã Hoàn Thành')
+        ->sum('total_price');
 
-        $tinhlai =  $totalRevenueQuantity * $totalRevenueInput;
-        $lai = $totalRevenue -  $tinhlai;
-        $totalRevenueAll = Order::sum('total_price');
+    $totalRevenueQuantity = OrderItem::whereHas('order', function ($query) {
+        $query->where('status', 'Đã Hoàn Thành');
+    })->sum('quantity');
 
-        // Doanh thu theo tháng (chỉ tính đơn đã hoàn thành)
-        $monthlyRevenue = Order::selectRaw('MONTH(created_at) as month, SUM(total_price) as revenue')
-            ->where('status', 'Đã Hoàn Thành')
-            ->groupByRaw('MONTH(created_at)')
-            ->orderByRaw('MONTH(created_at)')
-            ->get();
+    $totalRevenueInput = OrderItem::whereHas('order', function ($query) {
+        $query->where('status', 'Đã Hoàn Thành');
+    })->sum('input_price');
 
-        // Tạo mảng nhãn cho biểu đồ (ví dụ: Tháng 1, Tháng 2,...)
-        $chartLabels = $monthlyRevenue->pluck('month')->map(function ($m) {
-            return 'Tháng ' . $m;
-        });
+    $tinhlai = $totalRevenueQuantity * $totalRevenueInput;
+    $lai = $totalRevenue - $tinhlai;
+    $totalRevenueAll = Order::sum('total_price');
 
-        // Tổng số đơn hàng
-        $totalOrders = Order::count();
+    // Doanh thu theo tháng
+    $monthlyRevenue = Order::selectRaw('MONTH(created_at) as month, SUM(total_price) as revenue')
+        ->where('status', 'Đã Hoàn Thành')
+        ->groupByRaw('MONTH(created_at)')
+        ->orderByRaw('MONTH(created_at)')
+        ->get();
 
-        // Tổng số đơn đã giao thành công
-        $completedOrders = Order::where('status', 'Đã Hoàn Thành')->count();
+    // Doanh thu theo tuần
+    $weeklyRevenue = Order::selectRaw('YEARWEEK(created_at, 1) as week, SUM(total_price) as revenue')
+        ->where('status', 'Đã Hoàn Thành')
+        ->groupByRaw('YEARWEEK(created_at, 1)')
+        ->orderByRaw('YEARWEEK(created_at, 1)')
+        ->get();
 
-        // Tổng số lượng sản phẩm tồn kho
-        $totalStockQuantity = Product::sum('quantity');
+    // Doanh thu theo ngày
+    $dailyRevenue = Order::selectRaw('DATE(created_at) as date, SUM(total_price) as revenue')
+        ->where('status', 'Đã Hoàn Thành')
+        ->groupByRaw('DATE(created_at)')
+        ->orderByRaw('DATE(created_at)')
+        ->get();
 
-        return view('doanh_thu.list', compact(
-            'totalRevenue',
-            'monthlyRevenue',
-            'totalOrders',
-            'completedOrders',
-            'totalStockQuantity', // thêm biến này
-            'chartLabels',
-            'lai'
-        ));
-    }
+    // Nhãn cho biểu đồ tháng
+    $chartLabels = $monthlyRevenue->pluck('month')->map(function ($m) {
+        return 'Tháng ' . $m;
+    });
+
+    // Tổng số đơn hàng
+    $totalOrders = Order::count();
+
+    // Tổng số đơn đã giao thành công
+    $completedOrders = Order::where('status', 'Đã Hoàn Thành')->count();
+
+    // Tổng số lượng sản phẩm tồn kho
+    $totalStockQuantity = Product::sum('quantity');
+
+    return view('doanh_thu.list', compact(
+        'totalRevenue',
+        'monthlyRevenue',
+        'weeklyRevenue',
+        'dailyRevenue',
+        'totalOrders',
+        'completedOrders',
+        'totalStockQuantity',
+        'chartLabels',
+        'lai'
+    ));
+}
+
 }

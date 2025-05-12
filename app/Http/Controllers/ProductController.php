@@ -38,33 +38,148 @@ class ProductController extends Controller
 
 //
 
-    public function user_index(Request $request)
+//     public function user_index(Request $request)
+// {
+//     $query = Product::query();
+
+//     if ($request->has('search')) {
+//         $search = $request->input('search');
+//         $query->where('name', 'LIKE', "%{$search}%");
+//     }
+
+//     $products = $query->paginate(6);
+
+//     return view('user_products.list2', compact('products'));
+// }
+public function user_index(Request $request)
 {
     $query = Product::query();
 
+    // Tìm kiếm theo tên sản phẩm
     if ($request->has('search')) {
         $search = $request->input('search');
         $query->where('name', 'LIKE', "%{$search}%");
     }
 
-    $products = $query->paginate(6);
+    // Lọc theo mức giá
+    // if ($request->has('price_range') && $request->price_range !== '') {
+    //     switch ($request->price_range) {
+    //         case '1':
+    //             $query->where('price', '<', 100000);
+    //             break;
+    //         case '2':
+    //             $query->whereBetween('price', [100000, 300000]);
+    //             break;
+    //         case '3':
+    //             $query->whereBetween('price', [300000, 500000]);
+    //             break;
+    //         case '4':
+    //             $query->where('price', '>', 500000);
+    //             break;
+    //     }
+    // }
 
-    return view('user_products.list2', compact('products'));
+    // Lọc theo mức sao (1 sao đến 5 sao)
+    if ($request->has('rating_range') && $request->rating_range !== '') {
+        switch ($request->rating_range) {
+            case '1':
+                $query->whereHas('reviews', function($q) {
+                    $q->where('rating', '=', 1);
+                });
+                break;
+            case '2':
+                $query->whereHas('reviews', function($q) {
+                    $q->where('rating', '=', 2);
+                });
+                break;
+            case '3':
+                $query->whereHas('reviews', function($q) {
+                    $q->where('rating', '=', 3);
+                });
+                break;
+            case '4':
+                $query->whereHas('reviews', function($q) {
+                    $q->where('rating', '=', 4);
+                });
+                break;
+            case '5':
+                $query->whereHas('reviews', function($q) {
+                    $q->where('rating', '=', 5);
+                });
+                break;
+        }
+    }
+
+    // Lấy danh sách sản phẩm và thêm số lượng đánh giá cùng số sao trung bình
+    $products = $query->orderBy('id', 'desc')->paginate(6);
+
+    // Thêm số lượng đánh giá và số sao trung bình cho mỗi sản phẩm
+    foreach ($products as $product) {
+        $product->review_count = $product->reviews()->count(); // Số lượng đánh giá
+        $product->average_rating = $product->reviews()->avg('rating'); // Số sao trung bình
+    }
+
+    // Lấy danh sách sản phẩm bán chạy (top sản phẩm)
+    $products_top = $query->orderBy('quantity', 'asc')->limit(6)->get();
+    // Thêm số lượng đánh giá và số sao trung bình cho mỗi sản phẩm
+    foreach ($products_top as $product) {
+        $product->review_count = $product->reviews()->count(); // Số lượng đánh giá
+        $product->average_rating = $product->reviews()->avg('rating'); // Số sao trung bình
+    }
+
+    return view('user_products.list2', [
+        'products' => $products,
+        'currentSearch' => $request->search,
+        'currentPriceRange' => $request->price_range,
+        'currentRatingRange' => $request->rating_range,
+        'products_top' => $products_top
+    ]);
 }
 
+// public function user_products(Request $request)
+// {
+//     $query = Product::query();
+
+//     if ($request->has('search')) {
+//         $search = $request->input('search');
+//         $query->where('name', 'LIKE', "%{$search}%");
+//     }
+
+//     $products = $query->paginate(6);
+
+//     return view('user_products.products', compact('products'));
+// }
 public function user_products(Request $request)
 {
     $query = Product::query();
 
-    if ($request->has('search')) {
-        $search = $request->input('search');
-        $query->where('name', 'LIKE', "%{$search}%");
+    // Lọc theo danh mục
+    if ($request->has('category_id') && $request->category_id != '') {
+        $query->where('category_id', $request->category_id);
     }
 
-    $products = $query->paginate(6);
+    // Lọc theo khoảng giá
+    if ($request->has('price_min') && $request->price_min != '') {
+        $query->where('price', '>=', $request->price_min);
+    }
 
-    return view('user_products.products', compact('products'));
+    if ($request->has('price_max') && $request->price_max != '') {
+        $query->where('price', '<=', $request->price_max);
+    }
+
+    $products = $query->paginate(6)->appends($request->query()); // giữ query khi phân trang
+    $categories = Category::all();
+
+    foreach ($products as $product) {
+        $product->review_count = $product->reviews()->count(); // Số lượng đánh giá
+        $product->average_rating = $product->reviews()->avg('rating'); // Số sao trung bình
+    }
+
+    return view('user_products.products',[ 'currentPriceRange' => $request->price_range,
+    'currentRatingRange' => $request->rating_range,], compact('products', 'categories'));
 }
+
+
 
     // Hiển thị form tạo sản phẩm mới
     public function create()
@@ -178,11 +293,16 @@ public function store(Request $request)
     }
 
     public function product_detail(Product $product)
-    {
-        $query = Product::query();
-        $products_categories = $query->orderBy('id', 'desc')->get();
-        return view('user_products.products_detail', compact('product','products_categories'));
-    }
+{
+    // Lấy danh sách sản phẩm mới nhất (8 sản phẩm mỗi trang)
+    $products_categories = Product::orderBy('id', 'desc')->paginate(8);
+
+    // Lấy danh sách ảnh phụ từ quan hệ
+    $images = $product->images()->orderBy('id', 'desc')->get();
+
+    return view('user_products.products_detail', compact('product', 'products_categories', 'images'));
+}
+
 
 
 

@@ -17,10 +17,24 @@
                 <i class="fas fa-search"></i> Tìm kiếm
             </button>
         </form>
+        <form method="GET" action="{{ route('user.products') }}">
+            <input type="text" name="search" placeholder="Tìm kiếm..." value="{{ request('search') }}">
+
+            <select name="price_range" onchange="this.form.submit()">
+                <option value="">Tất cả mức giá</option>
+                <option value="1" {{ request('price_range') == '1' ? 'selected' : '' }}>Dưới 100.000đ</option>
+                <option value="2" {{ request('price_range') == '2' ? 'selected' : '' }}>100.000đ - 300.000đ</option>
+                <option value="3" {{ request('price_range') == '3' ? 'selected' : '' }}>300.000đ - 500.000đ</option>
+                <option value="4" {{ request('price_range') == '4' ? 'selected' : '' }}>Trên 500.000đ</option>
+            </select>
+
+            <button type="submit">Lọc</button>
+        </form>
+
     </div>
 
     <div class="row">
-    @if($products->count() > 0)
+        @if($products->count() > 0)
         @foreach ($products as $product)
         <div class="col-md-4 mb-4">
             <div class="card shadow-sm">
@@ -37,55 +51,52 @@
             </div>
         </div>
         @endforeach
-    @else
+        @else
         <div class="col-12 text-center text-muted">
             <p>Không có sản phẩm nào.</p>
         </div>
-    @endif
-</div>
+        @endif
+    </div>
 
-<!-- Hiển thị nút chuyển trang -->
-<!-- Hiển thị nút chuyển trang với Bootstrap -->
-<div class="d-flex justify-content-center mt-4">
-    <nav>
-        <ul class="pagination">
-            {{-- Nút "Trước" --}}
-            @if ($products->onFirstPage())
+    <!-- Hiển thị nút chuyển trang -->
+    <!-- Hiển thị nút chuyển trang với Bootstrap -->
+    <div class="d-flex justify-content-center mt-4">
+        <nav>
+            <ul class="pagination">
+                {{-- Nút "Trước" --}}
+                @if ($products->onFirstPage())
                 <li class="page-item disabled">
                     <span class="page-link">«</span>
                 </li>
-            @else
+                @else
                 <li class="page-item">
                     <a class="page-link" href="{{ $products->previousPageUrl() }}" aria-label="Previous">
                         «
                     </a>
                 </li>
-            @endif
+                @endif
 
-            {{-- Các số trang --}}
-            @foreach ($products->getUrlRange(1, $products->lastPage()) as $page => $url)
+                {{-- Các số trang --}}
+                @foreach ($products->getUrlRange(1, $products->lastPage()) as $page => $url)
                 <li class="page-item {{ $page == $products->currentPage() ? 'active' : '' }}">
                     <a class="page-link" href="{{ $url }}">{{ $page }}</a>
                 </li>
-            @endforeach
+                @endforeach
 
-            {{-- Nút "Sau" --}}
-            @if ($products->hasMorePages())
+                {{-- Nút "Sau" --}}
+                @if ($products->hasMorePages())
                 <li class="page-item">
                     <a class="page-link" href="{{ $products->nextPageUrl() }}" aria-label="Next">
                         »
                     </a>
                 </li>
-            @else
+                @else
                 <li class="page-item disabled">
                     <span class="page-link">»</span>
                 </li>
-            @endif
-        </ul>
-    </nav>
-</div>
-
-
-
+                @endif
+            </ul>
+        </nav>
+    </div>
 </div>
 @endsection

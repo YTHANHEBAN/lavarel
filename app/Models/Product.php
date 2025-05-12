@@ -36,4 +36,9 @@ class Product extends Model
     {
         return $this->reviews()->avg('rating');
     }
+    public function comments()
+{
+    return $this->hasMany(Comment::class);
+}
+
 }

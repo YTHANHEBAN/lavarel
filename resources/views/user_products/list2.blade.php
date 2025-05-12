@@ -36,20 +36,20 @@
     <div class="owl-banner owl-carousel">
         <div class="banner-item-01">
             <div class="text-content">
-                <h4>Best Offer</h4>
-                <h2>New Arrivals On Sale</h2>
+                <h4>Ưu Đãi</h4>
+                <h2>Hàng Mới Được Ưu Đãi</h2>
             </div>
         </div>
         <div class="banner-item-02">
             <div class="text-content">
-                <h4>Flash Deals</h4>
-                <h2>Get your best products</h2>
+                <h4>Ưu Đãi Chớp Nhoáng</h4>
+                <h2>Nhận Sản Phẩm Tốt Nhất Của Bạn</h2>
             </div>
         </div>
         <div class="banner-item-03">
             <div class="text-content">
-                <h4>Last Minute</h4>
-                <h2>Grab last minute deals</h2>
+                <h4>Ưu Đãi Cuối</h4>
+                <h2>Nhận Ưu Đãi Vào Phút Chói</h2>
             </div>
         </div>
     </div>
@@ -70,7 +70,26 @@
                     </div>
                     <div class="section-heading">
                         <h2>DANH SÁCH SẢN PHẨM</h2>
-                        <a href="products.html">Xem Tất Cả Sản Phẩm <i class="fa fa-angle-right"></i></a>
+                        <form method="GET" action="{{ route('user_products.list') }}">
+                            <div class="input-group" style="max-width: 300px;">
+                                <label class="input-group-text bg-danger text-white" for="rating_range">
+                                    <i class="fa fa-star"></i>
+                                </label>
+                                <select name="rating_range" id="rating_range" class="form-select">
+                                    <option value="">Chọn mức sao</option>
+                                    @for ($i = 1; $i <= 5; $i++)
+                                        <option value="{{ $i }}" {{ $currentRatingRange == $i ? 'selected' : '' }}>
+                                        {{ $i }}
+                                        {!! str_repeat('<span style="color:gold;">★</span>', $i) !!}
+                                        </option>
+                                        @endfor
+                                </select>
+                                <button type="submit" class="btn btn-outline-danger">
+                                    <i class="fa fa-filter me-1"></i> Lọc
+                                </button>
+                            </div>
+                        </form>
+                        <a href="/user_products">Xem Tất Cả Sản Phẩm <i class="fa fa-angle-right"></i></a>
                     </div>
                 </div>
                 @if($products->count() > 0)
@@ -85,13 +104,18 @@
                             <h6>{{ number_format($product->price, 0, ',', '.') }} VNĐ</h6>
                             <p>{{ $product->description }}</p>
                             <ul class="stars">
-                                <li><i class="fa fa-star"></i></li>
-                                <li><i class="fa fa-star"></i></li>
-                                <li><i class="fa fa-star"></i></li>
-                                <li><i class="fa fa-star"></i></li>
-                                <li><i class="fa fa-star"></i></li>
+                                @php
+                                // Giả sử $product->average_rating là số sao trung bình của sản phẩm
+                                $averageRating = $product->average_rating ?: 0; // Nếu không có đánh giá, đặt thành 0
+                                @endphp
+
+                                @for ($i = 1; $i <= 5; $i++)
+                                    <li>
+                                    <i class="fa fa-star {{ $i <= $averageRating ? 'text-danger' : 'text-muted' }}"></i>
+                                    </li>
+                                    @endfor
                             </ul>
-                            <span>Reviews (24)</span>
+                            <span>Đánh Giá ({{ $product->review_count }})</span>
                         </div>
                     </div>
                 </div>
@@ -141,6 +165,52 @@
                 </ul>
             </nav>
         </div>
+    </div>
+
+
+    <div class="latest-products">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="section-heading">
+                        <h2>TOP 6 BÁN CHẠY</h2>
+                    </div>
+                </div>
+                @if($products_top->count() > 0)
+                @foreach ($products_top as $product)
+                <div class="col-md-4">
+                    <div class="product-item">
+                        <a href="/products/detail/{{ $product->id}}"><img src="{{ asset('images/' . $product->image) }}" alt=""></a>
+                        <div class="down-content">
+                            <a href="#">
+                                <h4>{{ $product->name }}</h4>
+                            </a>
+                            <h6>{{ number_format($product->price, 0, ',', '.') }} VNĐ</h6>
+                            <p>{{ $product->description }}</p>
+                            <ul class="stars">
+                                @php
+                                // Giả sử $product->average_rating là số sao trung bình của sản phẩm
+                                $averageRating = $product->average_rating ?: 0; // Nếu không có đánh giá, đặt thành 0
+                                @endphp
+
+                                @for ($i = 1; $i <= 5; $i++)
+                                    <li>
+                                    <i class="fa fa-star {{ $i <= $averageRating ? 'text-danger' : 'text-muted' }}"></i>
+                                    </li>
+                                    @endfor
+                            </ul>
+                            <span>Đánh Giá ({{ $product->review_count }})</span>
+                        </div>
+                    </div>
+                </div>
+                @endforeach
+                @else
+                <div class="col-12 text-center text-muted">
+                    <p>Không có sản phẩm nào.</p>
+                </div>
+                @endif
+            </div>
+        </div>
 
     </div>
 
@@ -149,21 +219,22 @@
             <div class="row">
                 <div class="col-md-12">
                     <div class="section-heading">
-                        <h2>About Sixteen Clothing</h2>
+                        <h2>Giới Thiệu Về SHOP YTHANH</h2>
                     </div>
                 </div>
                 <div class="col-md-6">
                     <div class="left-content">
-                        <h4>Looking for the best products?</h4>
-                        <p><a rel="nofollow" href="https://templatemo.com/tm-546-sixteen-clothing" target="_parent">This template</a> is free to use for your business websites. However, you have no permission to redistribute the downloadable ZIP file on any template collection website. <a rel="nofollow" href="https://templatemo.com/contact">Contact us</a> for more info.</p>
+                        <h4>Tìm kiếm những sản phẩm tốt nhất?</h4>
+                        <p><a rel="nofollow" href="https://templatemo.com/tm-546-sixteen-clothing" target="_parent">Mẫu này</a> được sử dụng miễn phí cho các trang web doanh nghiệp của bạn. Tuy nhiên, bạn không có quyền phân phối lại tệp ZIP có thể tải xuống trên bất kỳ trang web bộ sưu tập mẫu nào. <a rel="nofollow" href="https://templatemo.com/contact">Liên hệ với chúng tôi</a> Để biết thêm thông tin.</p>
                         <ul class="featured-list">
-                            <li><a href="#">Lorem ipsum dolor sit amet</a></li>
-                            <li><a href="#">Consectetur an adipisicing elit</a></li>
-                            <li><a href="#">It aquecorporis nulla aspernatur</a></li>
-                            <li><a href="#">Corporis, omnis doloremque</a></li>
-                            <li><a href="#">Non cum id reprehenderit</a></li>
+                            <li><a href="#">Văn bản mẫu không có ý nghĩa cụ thể</a></li>
+                            <li><a href="#">Chuyên về lĩnh vực quảng cáo cao cấp</a></li>
+                            <li><a href="#">Một cơ thể không có điều gì gây khó chịu</a></li>
+                            <li><a href="#">Cơ thể, tất cả những điều đau đớn</a></li>
+                            <li><a href="#">Không với điều gì có thể được thừa nhận</a></li>
+
                         </ul>
-                        <a href="about.html" class="filled-button">Read More</a>
+                        <a href="about.html" class="filled-button">Xem Nhiều Hơn</a>
                     </div>
                 </div>
                 <div class="col-md-6">

@@ -149,7 +149,7 @@
                                 <select class="form-select w-100" name="address" id="address" required style="min-width: 100%; padding: 12px;">
                                     <option value="">-- Chọn địa chỉ --</option>
                                     @foreach ($addresses as $address)
-                                    <option value="{{ $address->id }}" id="location">{{ $address->province }}/{{ $address->district }}/{{ $address->ward }}
+                                    <option value="{{ $address->id }}" class="location">{{ $address->province }}/{{ $address->district }}/{{ $address->ward }}
                                     </option>
                                     @endforeach
                                 </select>
@@ -189,7 +189,7 @@
                             <label class="form-check-label" for="vnpay">VNPAY</label>
                         </div>
                         <div class="form-check mb-3">
-                            <input class="form-check-input" type="radio" name="paymentmethod" id="paypal" value="PAYPAL">
+                            <input class="form-check-input" type="radio" name="paymentmethod" id="momo" value="MOMO">
                             <label class="form-check-label" for="momo">MOMO</label>
                         </div>
                     </div>
@@ -341,39 +341,42 @@
     });
 
     document.addEventListener('DOMContentLoaded', function() {
-        const locationTd = document.getElementById('location');
-        const locationValue = locationTd.textContent.trim();
+        const locationOptions = document.querySelectorAll('.location');
 
-        const [provinceId, districtId, wardCode] = locationValue.split('/').map(i => i.trim());
+        locationOptions.forEach(option => {
+            const locationValue = option.textContent.trim();
+            const [provinceId, districtId, wardCode] = locationValue.split('/').map(i => i.trim());
 
-        let provinceName = '',
-            districtName = '',
-            wardName = '';
+            let provinceName = '',
+                districtName = '',
+                wardName = '';
 
-        fetch('/address/provinces')
-            .then(res => res.json())
-            .then(data => {
-                const province = data.data.find(p => p.ProvinceID == provinceId);
-                provinceName = province ? province.ProvinceName : 'Không rõ tỉnh';
-                return fetch(`/address/districts/${provinceId}`);
-            })
-            .then(res => res.json())
-            .then(data => {
-                const district = data.data.find(d => d.DistrictID == districtId);
-                districtName = district ? district.DistrictName : 'Không rõ quận';
-                return fetch(`/address/wards/${districtId}`);
-            })
-            .then(res => res.json())
-            .then(data => {
-                const ward = data.data.find(w => w.WardCode == wardCode);
-                wardName = ward ? ward.WardName : 'Không rõ phường';
-                locationTd.textContent = `${provinceName} / ${districtName} / ${wardName}`;
-            })
-            .catch(error => {
-                console.error('Lỗi khi load địa chỉ:', error);
-                locationTd.textContent = 'Không thể hiển thị địa chỉ';
-            });
+            fetch('/address/provinces')
+                .then(res => res.json())
+                .then(data => {
+                    const province = data.data.find(p => p.ProvinceID == provinceId);
+                    provinceName = province ? province.ProvinceName : 'Không rõ tỉnh';
+                    return fetch(`/address/districts/${provinceId}`);
+                })
+                .then(res => res.json())
+                .then(data => {
+                    const district = data.data.find(d => d.DistrictID == districtId);
+                    districtName = district ? district.DistrictName : 'Không rõ quận';
+                    return fetch(`/address/wards/${districtId}`);
+                })
+                .then(res => res.json())
+                .then(data => {
+                    const ward = data.data.find(w => w.WardCode == wardCode);
+                    wardName = ward ? ward.WardName : 'Không rõ phường';
+                    option.textContent = `${provinceName} / ${districtName} / ${wardName}`;
+                })
+                .catch(error => {
+                    console.error('Lỗi khi load địa chỉ:', error);
+                    option.textContent = 'Không thể hiển thị địa chỉ';
+                });
+        });
     });
+
 </script>
 
 @endsection

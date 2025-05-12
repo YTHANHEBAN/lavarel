@@ -14,7 +14,8 @@
         font-weight: 600;
     }
 
-    .order-table td, .order-table th {
+    .order-table td,
+    .order-table th {
         vertical-align: middle;
     }
 
@@ -61,12 +62,30 @@
     </div>
 
     @if($orders->count())
+    <form method="GET" action="{{ route('orders.index') }}" class="mb-4">
+        <div class="row justify-content-end">
+            <div class="col-md-4 col-sm-6">
+                <div class="input-group shadow-sm">
+                    <select name="status" id="status" class="form-select">
+                        <option value="">-- Tất cả trạng thái --</option>
+                        <option value="Chờ Xác Nhận" {{ request('status') == 'Chờ Xác Nhận' ? 'selected' : '' }}>Chờ Xác Nhận</option>
+                        <option value="Đã Xác Nhận" {{ request('status') == 'Đã Xác Nhận' ? 'selected' : '' }}>Đã Xác Nhận</option>
+                        <option value="Đang Giao" {{ request('status') == 'Đang Giao' ? 'selected' : '' }}>Đang Giao</option>
+                        <option value="Đã Hoàn Thành" {{ request('status') == 'Đã Hoàn Thành' ? 'selected' : '' }}>Đã Hoàn Thành</option>
+                        <option value="Đã Hủy" {{ request('status') == 'Đã Hủy' ? 'selected' : '' }}>Đã Hủy</option>
+                    </select>
+                    <button class="btn btn-outline-primary" type="submit">
+                        <i class="bi bi-funnel"></i> Lọc
+                    </button>
+                </div>
+            </div>
+        </div>
+    </form>
     <div class="table-responsive">
         <table class="table table-bordered table-hover order-table shadow-sm rounded">
             <thead class="table-light">
                 <tr class="text-center">
                     <th>Tên Người Nhận</th>
-                    <th>Địa Chỉ Nhận Hàng</th>
                     <th>Ngày Đặt</th>
                     <th>Trạng Thái</th>
                     <th>Tổng Tiền</th>
@@ -77,18 +96,15 @@
                 @foreach($orders as $order)
                 <tr class="text-center">
                     <td>{{ Auth::user()->name }}</td>
-                    <td class="location" data-province="{{ $order->province }}" data-district="{{ $order->district }}" data-ward="{{ $order->ward }}">
-                        {{ $order->province }} / {{ $order->district }} / {{ $order->ward }}
-                    </td>
                     <td>{{ $order->created_at->format('d/m/Y') }}</td>
                     <td>
                         @php
-                            $statusClass = match($order->status) {
-                                'Đã giao' => 'status-delivered',
-                                'Đang xử lý' => 'status-processing',
-                                'Đã hủy' => 'status-cancelled',
-                                default => 'bg-light text-dark'
-                            };
+                        $statusClass = match($order->status) {
+                        'Đã giao' => 'status-delivered',
+                        'Đang xử lý' => 'status-processing',
+                        'Đã hủy' => 'status-cancelled',
+                        default => 'bg-light text-dark'
+                        };
                         @endphp
                         <span class="order-status {{ $statusClass }}">{{ $order->status }}</span>
                     </td>
@@ -109,44 +125,4 @@
     </div>
     @endif
 </div>
-
-<script>
-    document.addEventListener('DOMContentLoaded', function () {
-        const locationTds = document.querySelectorAll('.location');
-
-        locationTds.forEach(td => {
-            const provinceId = td.dataset.province;
-            const districtId = td.dataset.district;
-            const wardCode = td.dataset.ward;
-
-            let provinceName = '';
-            let districtName = '';
-            let wardName = '';
-
-            fetch('/address/provinces')
-                .then(res => res.json())
-                .then(data => {
-                    const province = data.data.find(p => p.ProvinceID == provinceId);
-                    provinceName = province ? province.ProvinceName : 'Không rõ tỉnh';
-                    return fetch(`/address/districts/${provinceId}`);
-                })
-                .then(res => res.json())
-                .then(data => {
-                    const district = data.data.find(d => d.DistrictID == districtId);
-                    districtName = district ? district.DistrictName : 'Không rõ huyện';
-                    return fetch(`/address/wards/${districtId}`);
-                })
-                .then(res => res.json())
-                .then(data => {
-                    const ward = data.data.find(w => w.WardCode == wardCode);
-                    wardName = ward ? ward.WardName : 'Không rõ xã';
-                    td.textContent = `${provinceName} / ${districtName} / ${wardName}`;
-                })
-                .catch(error => {
-                    console.error('Lỗi khi load địa chỉ:', error);
-                    td.textContent = 'Không thể hiển thị địa chỉ';
-                });
-        });
-    });
-</script>
 @endsection

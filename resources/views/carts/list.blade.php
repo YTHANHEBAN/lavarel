@@ -79,6 +79,9 @@
                             <button type="submit" class="btn btn-sm btn-outline-primary">Cập nhật</button>
                         </form>
                         <span class="ms-3">Tổng Tiền : {{ number_format($item->price * $item->quantity) }} VNĐ</span>
+                        @php
+                        $subtotal = $item->price * $item->quantity;
+                        @endphp
                         <form action="/carts/delete/{{ $item->id }}" method="POST" onsubmit="return confirm('Bạn có chắc chắn muốn xóa?');">
                             @csrf
                             @method('DELETE')
@@ -106,6 +109,16 @@
             </div>
             <div class="text-end">
                 <div>Tổng cộng :<span class="text-danger fw-bold fs-5"> {{ number_format($total) }} VNĐ</span></div>
+                @php
+                $subtotal = $total;
+                @endphp
+
+                @if($subtotal > 50000)
+                <p>Đơn hàng trên 50.000 được free ship</p>
+                <p>Phí vận chuyển: 0đ</p>
+                @else
+                <p>Phí vận chuyển: 30.000đ</p>
+                @endif
             </div>
             <a href="{{ route('cart.checkout') }}" class="btn btn-danger px-4 py-2">Mua Hàng</a>
         </div>

@@ -19,19 +19,25 @@ class CouponController extends Controller
     }
 
     public function store(Request $request)
-    {
-        $request->validate([
-            'code' => 'required|unique:coupons',
-            'type' => 'required|in:percent,fixed',
-            'value' => 'required|numeric|min:0',
-            'start_date' => 'nullable|date',
-            'end_date' => 'nullable|date|after_or_equal:start_date',
-        ]);
+{
+    $request->validate([
+        'code' => 'required|unique:coupons',
+        'type' => 'required|in:percent,fixed',
+        'value' => 'required|numeric|min:0',
+        'start_date' => 'nullable|date',
+        'end_date' => 'nullable|date',
+    ]);
 
-        Coupon::create($request->all());
-
-        return redirect()->route('coupons.list')->with('success', 'Tạo mã giảm giá thành công.');
+    if ($request->start_date && $request->end_date && $request->start_date > $request->end_date) {
+        return back()->withErrors(['start_date' => 'Ngày bắt đầu không được lớn hơn ngày kết thúc.'])
+                     ->withInput();
     }
+
+    Coupon::create($request->all());
+
+    return redirect()->route('coupons.list')->with('success', 'Tạo mã giảm giá thành công.');
+}
+
 
     public function edit(Coupon $coupon)
     {
@@ -39,19 +45,25 @@ class CouponController extends Controller
     }
 
     public function update(Request $request, Coupon $coupon)
-    {
-        $request->validate([
-            'code' => 'required|unique:coupons,code,' . $coupon->id,
-            'type' => 'required|in:percent,fixed',
-            'value' => 'required|numeric|min:0',
-            'start_date' => 'nullable|date',
-            'end_date' => 'nullable|date|after_or_equal:start_date',
-        ]);
+{
+    $request->validate([
+        'code' => 'required|unique:coupons,code,' . $coupon->id,
+        'type' => 'required|in:percent,fixed',
+        'value' => 'required|numeric|min:0',
+        'start_date' => 'nullable|date',
+        'end_date' => 'nullable|date',
+    ]);
 
-        $coupon->update($request->all());
-
-        return redirect()->route('coupons.list')->with('success', 'Cập nhật thành công.');
+    if ($request->start_date && $request->end_date && $request->start_date > $request->end_date) {
+        return back()->withErrors(['start_date' => 'Ngày bắt đầu không được lớn hơn ngày kết thúc.'])
+                     ->withInput();
     }
+
+    $coupon->update($request->all());
+
+    return redirect()->route('coupons.list')->with('success', 'Cập nhật thành công.');
+}
+
 
     public function destroy(Coupon $coupon)
     {

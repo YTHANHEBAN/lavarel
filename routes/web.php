@@ -15,8 +15,7 @@ use App\Http\Controllers\AddressController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\ProductReviewController;
-
-
+use App\Http\Controllers\CommentController;
 
 
 
@@ -170,12 +169,15 @@ Route::middleware(['auth', 'is_admin'])->group(function () {
     Route::post('/products/{product}/review', [ProductReviewController::class, 'store'])->name('products.review.store')->middleware('auth');
 
     Route::get('/admin/revenue', [OrderController::class, 'revenue'])->name('admin.revenue');
+
+    Route::post('/comments', [CommentController::class, 'store'])->name('comments.store');
+
 });
 
 
 // User Product
 Route::get('/', [ProductController::class, 'user_index'])->name('user_products.list');
-Route::get('/user_products', [ProductController::class, 'user_products']);
+Route::get('/user_products', [ProductController::class, 'user_products'])->name('user_products');;
 Route::get('/products/detail/{product}', [ProductController::class, 'product_detail']);
 
 
@@ -240,6 +242,7 @@ Route::middleware(['require_login'])->group(function () {
     Route::get('vnpay/return', [CartController::class, 'vnpayReturn'])->name('vnpay.return');
     Route::get('/checkout/momo-return', [CartController::class, 'momoReturn'])->name('momo.return');
     Route::get('zalopay/return', [CartController::class, 'zalopayReturn'])->name('zalopay.return');
+    Route::post('/momo/ipn', [CartController::class, 'momoIpn'])->name('momo.ipn');
 
 
     // Route::post('/calculate-shipping-fee', [AddressController::class, 'calculateShippingFee']);
